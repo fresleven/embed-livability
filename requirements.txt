@@ -1,0 +1,26 @@
+# Core deep-learning / modeling stack
+torch>=2.2
+torchvision>=0.17
+transformers>=4.30
+
+# Numerics, data, and plotting
+numpy
+scipy
+scikit-learn
+pandas
+matplotlib
+tqdm
+Pillow
+opencv-python
+
+# Generating the AlphaEarth / AnySat / TerraMind embeddings (see embeddings/)
+# rs-embed drives the foundation models; pyproj converts grid IDs to lon/lat.
+# Install rs-embed separately (it requires Python >= 3.12):
+#     pip install "rs-embed[terratorch] @ git+https://github.com/cybergis/rs-embed"
+pyproj>=3.6
+
+# Downloading the published dataset from the Hugging Face Hub and converting the
+# Parquet files into the on-disk layout train.py expects (see data_prep/)
+huggingface-hub
+datasets
+pyarrow
