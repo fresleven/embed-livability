@@ -217,6 +217,8 @@ if __name__ == "__main__":
         args.output_dir += "_" + str(args.cvae_kl_weight)
     if "NULL" in train_file or "noPOI" in train_file:
         args.output_dir += "_" + train_file.split("0320_", 1)[1].rsplit(".json", 1)[0]
+    if args.seed != 42:
+        args.output_dir += "_seed" + str(args.seed)
     print("Output dir: ", args.output_dir)
     if alphazero:
         print("Testing with all satellite embeddings zeroed out (ablation)")

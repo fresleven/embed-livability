@@ -4,7 +4,7 @@ Code and experiments for the paper:
 
 > **Applying foundation model embeddings towards urban livability evaluation**
 > Ayush Khot, Wen Zhou, Shaowen Wang — University of Illinois at Urbana-Champaign
-> *Submitted to ACM SIGSPATIAL '26 (soon to be posted on arXiv!)*
+> *Accepted at ACM SIGSPATIAL '26*
 
 We investigate which physical features are encoded within geospatial foundation
 model embeddings — **AlphaEarth Foundations**, **AnySat**, and **TerraMind** —
@@ -14,6 +14,8 @@ embeddings with four base modalities (remote sensing, digital surface model,
 nightlight remote sensing, and point-of-interest text) and study their marginal
 value, robustness to missing inputs, and interpretability via attention entropy
 and Full Grad-CAM.
+
+![Overall livability score maps for four test cities (Eindhoven, Hengelo, Beesel, Dordrecht): ground truth, base prediction, AlphaEarth-augmented prediction, and their difference.](figs/map_paper_2.png)
 
 ## Model overview
 
@@ -36,6 +38,9 @@ embedding), and pairwise / full combinations (`aef+as`, `aef+tm`, `as+tm`,
 .
 ├── train.py                      # Training / evaluation entrypoint
 ├── utils.py                      # Train & evaluate loops
+├── probe_baseline.py             # Embedding-only linear/MLP probe baseline (Sec. 4.2)
+├── aggregate_seeds.py            # Aggregate multi-seed runs into mean +/- std / LaTeX rows
+├── generate_seed_sbatches.sh     # Generates the seed-43/44 + probe sbatch scripts in slurm/
 ├── cvae_utils.py                 # Conditional-VAE spatial deconfounder utilities
 ├── textBert_utils.py             # BERT / text helpers
 ├── tex_utils.py                  # LaTeX results-table generation
@@ -134,6 +139,29 @@ Training defaults follow the paper (Appendix A): AdamW, lr `5e-5`, weight decay
 `slurm/` contains the exact job scripts used for each model / seed / ablation.
 Run `python train.py --help` for all options.
 
+Every model in the main comparison table and the modality-ablation table is
+trained at 3 seeds (42, 43, 44); passing `--seed` other than the default 42
+appends `_seed<N>` to `output_dir` so runs don't collide. After the seed-43/44
+jobs in `slurm/` finish, aggregate results with:
+
+```bash
+python aggregate_seeds.py --table main       # Table 1
+python aggregate_seeds.py --table ablation   # modality-ablation table
+python aggregate_seeds.py --table probe      # embedding-only probes, see below
+```
+
+### Embedding-only probe baseline
+
+`probe_baseline.py` trains a single-hidden-layer MLP on the spatially
+mean-pooled embedding vector alone (no RS/DSM/NLRS/POI, no
+DenseNet/BERT/Transformer), to measure how much livability signal each
+embedding carries by itself:
+
+```bash
+python probe_baseline.py --embedding alphaearth --seed 42
+python probe_baseline.py --embedding anysat --seed 42 --hidden_dim 0   # linear probe
+```
+
 ## Analysis & figures
 
 - `notebooks/results.ipynb` — RMSE tables (Tables 1–6)
@@ -155,15 +183,15 @@ Run `python train.py --help` for all options.
 
 ## Citation
 
-This paper has been **submitted to ACM SIGSPATIAL '26** and will be posted on
-arXiv soon. Citation details will be updated once it is available.
+This paper has been **accepted at ACM SIGSPATIAL '26**. Full proceedings
+citation details (DOI, page numbers) will be added once available.
 
 ```bibtex
-@misc{khot2026livability,
-  title  = {Applying foundation model embeddings towards urban livability evaluation},
-  author = {Khot, Ayush and Zhou, Wen and Wang, Shaowen},
-  year   = {2026},
-  note   = {Submitted to ACM SIGSPATIAL '26; arXiv preprint forthcoming}
+@inproceedings{khot2026livability,
+  title     = {Applying foundation model embeddings towards urban livability evaluation},
+  author    = {Khot, Ayush and Zhou, Wen and Wang, Shaowen},
+  booktitle = {Proceedings of the 34th ACM International Conference on Advances in Geographic Information Systems (SIGSPATIAL '26)},
+  year      = {2026}
 }
 ```
 
